@@ -6,15 +6,15 @@ import io
 
 st.set_page_config(page_title="Wine2WeShip", page_icon="🍷", layout="centered")
 
-st.title("🍷 Wine2WeShip – CSV → XLS per spedizioni USA")
+st.title("🍷 Wine2WeShip – CSV → XLSX per spedizioni USA")
 
 st.write(
     "Carica il CSV, l’app filtrerà solo le righe con **United States of America**, "
     "dividerà in colli da 12, calcolerà il peso e userà le colonne del template "
-    "**weship base.xls** presente nel repo."
+    "**weshipbase.xlsx** presente nel repo."
 )
 
-TEMPLATE_PATH = "weship base.xls"
+TEMPLATE_PATH = "weshipbase.xlsx"   # <--- nuovo nome, in xlsx
 
 # --- helper per gli stati USA ---
 STATE_TO_ABBR = {
@@ -95,9 +95,9 @@ if uploaded is not None:
     st.subheader("Anteprima CSV")
     st.dataframe(df.head(20))
 
-    if st.button("👉 Genera XLS"):
-        # carico il template .xls dal repo
-        template_df = pd.read_excel(TEMPLATE_PATH, dtype=str, engine="xlrd")
+    if st.button("👉 Genera XLSX"):
+        # carico il template .xlsx dal repo
+        template_df = pd.read_excel(TEMPLATE_PATH, dtype=str, engine="openpyxl")
         template_df.columns = [c.strip() for c in template_df.columns]
         template_columns = list(template_df.columns)
         template_cols_lower = {c.lower(): c for c in template_columns}
@@ -170,17 +170,17 @@ if uploaded is not None:
 
         st.success(f"Generato file con {len(df_out)} righe (solo USA).")
 
-        # crea XLS in memoria
+        # crea XLSX in memoria
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="xlwt") as writer:
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df_out.to_excel(writer, index=False, sheet_name="Sheet1")
         output.seek(0)
 
         st.download_button(
-            "📥 Scarica XLS",
+            "📥 Scarica XLSX",
             data=output,
-            file_name="wine2weship_output.xls",
-            mime="application/vnd.ms-excel"
+            file_name="wine2weship_output.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 else:
     st.info("Carica un CSV per iniziare.")
